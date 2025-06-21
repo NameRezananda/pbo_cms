@@ -5,13 +5,146 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CRUD Sederhana Supabase - Prosedural</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 20px; }
-  #crudForm { display: none; border: 1px solid #ccc; padding: 15px; width: 300px; margin-top: 15px; }
-  table { border-collapse: collapse; width: 100%; margin-top: 15px; }
-  th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-  tr:hover { background-color: #f9f9f9; cursor: pointer; }
-  button { margin-right: 10px; }
-  #addBtn { margin-bottom: 15px; }
+  @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+  body {
+    font-family: 'Comic Neue', Comic Sans MS, cursive, sans-serif;
+    margin: 20px;
+    background: linear-gradient(135deg, #f9d423 0%, #ff4e50 100%);
+    min-height: 100vh;
+    color: #222;
+  }
+  h2 {
+    font-size: 2.2em;
+    color: #fff;
+    text-shadow: 3px 3px 0 #222, 6px 6px 0 #ff4e50;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+  #crudForm {
+    display: none;
+    border: 4px solid #222;
+    border-radius: 18px;
+    background: #fffbe7;
+    box-shadow: 6px 6px 0 #222;
+    padding: 20px;
+    width: 340px;
+    margin-top: 15px;
+    position: relative;
+    z-index: 2;
+  }
+  label {
+    font-weight: bold;
+    color: #ff4e50;
+    text-shadow: 1px 1px 0 #fffbe7;
+  }
+  input[type="text"], textarea {
+    width: 95%;
+    padding: 8px;
+    border: 2px solid #ff4e50;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1em;
+    background: #fff;
+    margin-top: 4px;
+    box-shadow: 2px 2px 0 #222;
+    transition: border 0.2s;
+  }
+  input[type="text"]:focus, textarea:focus {
+    border: 2px solid #f9d423;
+    outline: none;
+    background: #fffde7;
+  }
+  textarea {
+    min-height: 60px;
+    resize: vertical;
+  }
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin-top: 15px;
+    background: #fffbe7;
+    border-radius: 18px;
+    box-shadow: 6px 6px 0 #222;
+    overflow: hidden;
+  }
+  th, td {
+    border-bottom: 3px solid #f9d423;
+    padding: 12px 10px;
+    text-align: left;
+    font-size: 1.05em;
+  }
+  th {
+    background: #ff4e50;
+    color: #fff;
+    text-shadow: 2px 2px 0 #222;
+    letter-spacing: 1px;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  tr {
+    transition: background 0.2s, transform 0.1s;
+  }
+  tr:hover {
+    background-color: #ffe082;
+    cursor: pointer;
+    transform: scale(1.01) rotate(-1deg);
+    box-shadow: 2px 2px 0 #ff4e50;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1em;
+    padding: 8px 18px;
+    border: 3px solid #222;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #ff4e50 60%, #f9d423 100%);
+    color: #fff;
+    font-weight: bold;
+    margin-right: 10px;
+    margin-top: 5px;
+    box-shadow: 3px 3px 0 #222;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    text-shadow: 1px 1px 0 #222;
+  }
+  button:hover {
+    background: linear-gradient(90deg, #f9d423 60%, #ff4e50 100%);
+    color: #222;
+    transform: scale(1.05) rotate(-2deg);
+  }
+  #addBtn {
+    margin-bottom: 15px;
+    background: linear-gradient(90deg, #43cea2 60%, #185a9d 100%);
+    color: #fff;
+    border-color: #222;
+    text-shadow: 1px 1px 0 #185a9d;
+    box-shadow: 3px 3px 0 #222;
+  }
+  #addBtn:hover {
+    background: linear-gradient(90deg, #185a9d 60%, #43cea2 100%);
+    color: #fffbe7;
+  }
+  #deleteBtn {
+    background: linear-gradient(90deg, #ff512f 60%, #dd2476 100%);
+    color: #fff;
+    border-color: #222;
+    text-shadow: 1px 1px 0 #dd2476;
+  }
+  #deleteBtn:hover {
+    background: linear-gradient(90deg, #dd2476 60%, #ff512f 100%);
+    color: #fffbe7;
+  }
+  #cancelBtn {
+    background: linear-gradient(90deg, #f9d423 60%, #ff4e50 100%);
+    color: #222;
+    border-color: #222;
+    text-shadow: 1px 1px 0 #fffbe7;
+  }
+  #cancelBtn:hover {
+    background: linear-gradient(90deg, #ff4e50 60%, #f9d423 100%);
+    color: #fff;
+  }
 </style>
 </head>
 <body>
@@ -34,8 +167,7 @@
   </div>
   <div style="margin-top:8px;">
     <label for="emailInput">Isi:</label><br/>
-    <textarea id="emailInput"> </textarea>
-    <!-- <input type="email" id="emailInput" required /> -->
+    <textarea id="emailInput"></textarea>
   </div>
   <div style="margin-top:15px;">
     <button type="submit">Simpan</button>
@@ -48,10 +180,8 @@
 // Import Supabase client dari CDN
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-
 const SUPABASE_URL = 'https://ftofpjsfuykfegjmcrpk.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0b2ZwanNmdXlrZmVnam1jcnBrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0ODg2OTcsImV4cCI6MjA2NjA2NDY5N30.BQ4qiiKnavfUL99-_F4VZhgA6xtt-0beHlLXoUoAubc'
-
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
